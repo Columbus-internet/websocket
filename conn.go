@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net"
 	"strconv"
@@ -777,6 +778,7 @@ func (c *Conn) advanceFrame() (int, error) {
 
 	p, err := c.read(2)
 	if err != nil {
+		log.Printf("c.read(2) throwed: %s\n", err)
 		return noFrame, err
 	}
 
@@ -823,12 +825,14 @@ func (c *Conn) advanceFrame() (int, error) {
 	case 126:
 		p, err := c.read(2)
 		if err != nil {
+			log.Printf("c.read(2) 'in case 126' throwed: %s\n", err)
 			return noFrame, err
 		}
 		c.readRemaining = int64(binary.BigEndian.Uint16(p))
 	case 127:
 		p, err := c.read(8)
 		if err != nil {
+			log.Printf("c.read(8) 'in case 127' throwed: %s\n", err)
 			return noFrame, err
 		}
 		c.readRemaining = int64(binary.BigEndian.Uint64(p))
@@ -844,6 +848,7 @@ func (c *Conn) advanceFrame() (int, error) {
 		c.readMaskPos = 0
 		p, err := c.read(len(c.readMaskKey))
 		if err != nil {
+			log.Printf("c.read(len(c.readMaskKey)) throwed: %s\n", err)
 			return noFrame, err
 		}
 		copy(c.readMaskKey[:], p)
@@ -869,6 +874,7 @@ func (c *Conn) advanceFrame() (int, error) {
 		payload, err = c.read(int(c.readRemaining))
 		c.readRemaining = 0
 		if err != nil {
+			log.Printf("c.read(int(c.readRemaining)) throwed: %s\n", err)
 			return noFrame, err
 		}
 		if c.isServer {
@@ -937,6 +943,7 @@ func (c *Conn) NextReader() (messageType int, r io.Reader, err error) {
 	for c.readErr == nil {
 		frameType, err := c.advanceFrame()
 		if err != nil {
+			log.Printf("c.advanceFrame throwed: %s\n", err)
 			c.readErr = hideTempErr(err)
 			break
 		}

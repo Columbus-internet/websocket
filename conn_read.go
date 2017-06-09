@@ -6,11 +6,15 @@
 
 package websocket
 
-import "io"
+import (
+	"io"
+	"log"
+)
 
 func (c *Conn) read(n int) ([]byte, error) {
 	p, err := c.br.Peek(n)
 	if err == io.EOF {
+		log.Printf("c.br.Peek(n) failed to read %d bytes: read just %d -> %s\n", n, len(p), string(p))
 		err = errUnexpectedEOF
 	}
 	c.br.Discard(len(p))
