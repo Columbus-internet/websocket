@@ -779,6 +779,7 @@ func (c *Conn) advanceFrame() (int, error) {
 	p, err := c.read(2)
 	if err != nil {
 		log.Printf("c.read(2) throwed: %s\n", err)
+		log.Printf("c.readRemaining: %d\n", c.readRemaining)
 		return noFrame, err
 	}
 
